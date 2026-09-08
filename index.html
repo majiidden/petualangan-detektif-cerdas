@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petualangan Detektif Cerdas - Seri B. Indonesia</title>
+<style>
+:root{
+ --navy:#123e73;--blue:#087fd6;--sky:#4ab5ee;--gold:#ffca28;--orange:#ff8a00;
+ --green:#42bd50;--red:#e94a43;--purple:#8050d9;--cream:#fff8e5;--brown:#77401b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#071d38;font-family:'Trebuchet MS','Arial Rounded MT Bold',Arial,sans-serif;color:#142b45}
+button,input{font:inherit}
+button{cursor:pointer}
+#game{min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px}
+.screen{display:none;width:min(1180px,100%);min-height:min(760px,calc(100vh - 20px));border-radius:24px;overflow:hidden;position:relative;box-shadow:0 18px 55px #0008}
+.screen.active{display:flex;flex-direction:column}
+.start{background:linear-gradient(#8fdcff 0 42%,#72c75c 43% 100%)}
+.wood{background:linear-gradient(110deg,#593219,#ad7140 48%,#4d2b18)}
+.library{background:linear-gradient(110deg,#2b2118,#886038 48%,#3c291a)}
+.yard{background:linear-gradient(#81d9ff 0 40%,#65be51 41% 100%)}
+.finish{background:radial-gradient(circle at 50% 15%,#2779cc,#061a38 78%)}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;position:relative;z-index:4}
+.pill{background:#fff8df;border:3px solid var(--gold);border-radius:17px;padding:8px 13px;font-weight:900;box-shadow:0 4px 0 #0003}
+.nav{background:linear-gradient(#28a2ee,#0765b8);border:3px solid white;color:white;border-radius:17px;padding:9px 15px;font-weight:900;box-shadow:0 4px 0 #06477f}
+.sound{background:#172e50;color:#fff;border:3px solid var(--gold)}
+.volumeSlider{width:82px;vertical-align:middle;accent-color:#ffb21b}.volText{display:inline-block;min-width:32px;text-align:center;font-size:12px;font-weight:1000}
+.hero{flex:1;display:flex;align-items:center;justify-content:center;padding:10px 18px}
+.hero-card{text-align:center;max-width:900px}
+.characters{font-size:clamp(58px,9vw,110px);filter:drop-shadow(0 7px 4px #0005)}
+.series{display:inline-block;background:#fff4b7;border:4px solid #9b5b1f;border-radius:15px;padding:8px 18px;font-weight:1000;color:#743800;margin-bottom:8px}
+.logo{font-family:'Trebuchet MS','Arial Rounded MT Bold',Arial,sans-serif;font-size:clamp(34px,5.8vw,64px);font-weight:900;letter-spacing:.2px;line-height:1.02;color:#124f91;background:#fff7d2;border:5px solid #70421d;border-radius:22px;padding:12px 22px;box-shadow:0 6px 0 #4d2a12; text-shadow:none}
+.sub{display:inline-block;background:#fff8e5eF;border:4px solid #b87c37;border-radius:18px;padding:10px 18px;margin:12px 0;font-weight:800;font-size:clamp(15px,2vw,20px)}
+.login{background:#fff8e5;border:5px solid #8e5726;border-radius:22px;padding:14px;max-width:650px;margin:0 auto;box-shadow:0 8px 0 #5a3017}
+.login h2{margin:0 0 10px;color:#7b3f15}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fields input{width:100%;padding:12px;border:3px solid #c18a45;border-radius:12px;background:#fff}
+.modes{display:flex;justify-content:center;flex-wrap:wrap;gap:9px;margin:12px 0}
+.mode{color:#fff;border:3px solid white;border-radius:15px;padding:10px 16px;font-weight:1000;box-shadow:0 4px 0 #0004}
+.easy{background:var(--green)}.medium{background:#e89c17}.hard{background:var(--red)}
+.mode.selected{outline:4px solid #fff;transform:scale(1.04);box-shadow:0 0 0 3px #17324f,0 5px 0 #0005}
+.startbtn{background:linear-gradient(#ffd93f,#ff8500);border:5px solid #8a4c0d;border-radius:23px;padding:12px 30px;font-size:clamp(21px,3vw,31px);font-weight:1000;color:#5b2c00;box-shadow:0 7px 0 #6d390a}
+.contact{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);white-space:nowrap;background:#b97936;color:#fff;border:3px solid #6d3d18;border-radius:14px;padding:6px 13px;font-size:12px;font-weight:900}
+
+.quizarea{flex:1;display:flex;justify-content:center;align-items:center;padding:8px 18px 24px}
+.card{width:min(980px,100%);background:#fff8e7;border:5px solid #925622;border-radius:24px;padding:17px;box-shadow:0 9px 0 #351b0dcc;position:relative}
+.qtitle{background:#9a5019;color:white;border:4px solid #542c0e;border-radius:18px;text-align:center;padding:9px;font-size:clamp(25px,4vw,41px);font-weight:1000;text-shadow:2px 2px #4a210b}
+.progress{position:absolute;right:17px;top:17px;background:#223751;color:#fff;border:3px solid var(--gold);border-radius:14px;padding:7px 11px;font-weight:1000}
+.instruction{text-align:center;font-weight:800;font-size:clamp(15px,2vw,19px);margin:15px 0 9px}
+.question{background:#fff;border:3px dashed #d0913e;border-radius:16px;text-align:center;padding:17px;font-size:clamp(20px,3vw,28px);font-weight:1000;margin-bottom:14px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.answer{border:3px solid white;border-radius:15px;padding:12px 15px;text-align:left;font-weight:1000;font-size:clamp(16px,2.1vw,21px);box-shadow:0 4px 0 #0004}
+.a{background:#ffbd21}.b{background:#39aeef}.c{background:#7bd33e}.d{background:#a778ed}
+.answer.correct{outline:5px solid #16a640}.answer.wrong{outline:5px solid #df3838}
+.feedback{text-align:center;min-height:34px;margin:9px 0;font-size:18px;font-weight:1000}
+.bottom{display:flex;justify-content:space-between;gap:10px}
+.next{background:linear-gradient(#62e36b,#159431)}
+.tip{margin-top:10px;background:#fff0ae;border:2px solid #e0a13b;border-radius:13px;padding:8px;text-align:center;font-size:13px;font-weight:800}
+.disabled{opacity:.45;pointer-events:none}
+
+.scorebox{flex:1;display:flex;align-items:center;justify-content:center;padding:14px}
+.result{width:min(1050px,100%);background:#fff8e4;border:5px solid #d58a23;border-radius:25px;padding:18px;text-align:center;box-shadow:0 10px 0 #0007}
+.trophy{font-size:62px}.finishTitle{font-size:clamp(36px,6vw,62px);font-weight:1000;color:#e64b18;text-shadow:2px 3px white}
+.summary{font-size:18px}
+table{width:100%;border-collapse:collapse;background:white;margin:12px 0;font-size:clamp(12px,1.8vw,17px)}
+th,td{border:2px solid #5b8eb8;padding:8px}th{background:#55b9eb}
+.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.replay{background:linear-gradient(#ffd93f,#ff8500);color:#5b2c00}
+.feedbackContact{margin-top:10px;background:#273e78;color:#fff;border-radius:14px;padding:10px;font-weight:900}
+
+@media(max-width:650px){
+ #game{padding:0}.screen{min-height:100vh;border-radius:0}
+ .top{padding:8px}.nav{padding:8px 11px}.pill{padding:7px 9px;font-size:13px}
+ .fields{grid-template-columns:1fr}
+ .logo{font-size:38px}.login{padding:11px}.hero{padding:5px 10px}.volumeSlider{width:58px}.volText{min-width:28px}
+ .quizarea{padding:6px 8px 14px}.card{padding:11px;border-width:4px}
+ .qtitle{font-size:25px}.progress{position:static;display:table;margin:7px auto 0}
+ .answers{grid-template-columns:1fr}.question{padding:13px}
+ .contact{max-width:95%;overflow:hidden;font-size:10px}
+}
+
+.modeDot{display:inline-flex;width:18px;height:18px;border-radius:50%;align-items:center;justify-content:center;background:#fff;border:2px solid #fff;color:currentColor;font-size:14px;line-height:1;box-shadow:inset 0 0 0 4px #ffffff66,0 1px 2px #0005}
+.mode.selected .modeDot{background:#fff;color:#222;box-shadow:0 0 0 3px #fff,0 2px 4px #0006}
+.volumeBox{display:flex;align-items:center;gap:5px;background:#fff8df;border:3px solid #ffca28;border-radius:15px;padding:5px 9px;font-weight:900;box-shadow:0 4px 0 #0003}
+.volume{width:95px;accent-color:#087fd6;cursor:pointer}
+.volText{min-width:34px;text-align:center;font-size:12px}
+</style>
+</head>
+<body>
+<div id="game">
+
+<!-- 1. AWAL + LOGIN -->
+<section id="start" class="screen start active">
+ <div class="top">
+   <div class="pill">📚 Seri : B. Indonesia</div>
+   <div style="display:flex;align-items:center;gap:7px"><div class="pill">🎵 Musik Petualangan</div><label class="pill" style="padding:6px 9px">🎚️ <input class="volumeSlider" type="range" min="0" max="100" value="55" aria-label="Volume musik"><span class="volText">55%</span></label></div>
+ </div>
+ <div class="hero">
+  <div class="hero-card">
+   <div class="characters">🕵️‍♂️ 🔎 🦉</div>
+   <div class="logo">Petualangan<br>Detektif Cerdas</div>
+   <div class="sub">🔍 Belajar sambil memecahkan misteri kata!</div>
+   <div class="login">
+    <h2>🗝️ Masuk ke Petualangan</h2>
+    <div class="fields">
+      <input id="name" placeholder="Nama pemain" autocomplete="off">
+      <input id="kelas" placeholder="Kelas" autocomplete="off">
+    </div>
+    <div style="font-weight:900;margin-top:10px">🎯 Pilih Tingkat Permainan</div>
+    <div class="modes">
+      <button class="mode easy selected" data-mode="mudah"><span class="modeDot">●</span> Mudah</button>
+      <button class="mode medium" data-mode="sedang"><span class="modeDot">●</span> Sedang</button>
+      <button class="mode hard" data-mode="sulit"><span class="modeDot">●</span> Sulit</button>
+    </div>
+    <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap"><button id="begin" class="startbtn">▶ MULAI PETUALANGAN</button><button id="scoreMenu" class="nav" style="font-size:18px">🏆 Skor Pemain</button></div>
+   </div>
+   <div style="font-size:30px;margin-top:10px">🗺️ 🧭 🔐 🧩 ⭐</div>
+  </div>
+ </div>
+ <div class="contact">☎ Hubungi : Aos Mutaqin, S.Pd.I (087773959992)</div>
+</section>
+
+<!-- 2. KATA SIFAT -->
+<section id="adj" class="screen wood">
+ <div class="top"><button class="nav" onclick="home()">🏠 Home</button><div style="display:flex;align-items:center;gap:7px"><label class="pill" style="padding:6px 9px">🎚️ <input class="volumeSlider" type="range" min="0" max="100" value="55" aria-label="Volume musik"><span class="volText">55%</span></label><div class="pill">⭐ <span id="adjScore">0</span>/5</div></div></div>
+ <div class="quizarea"><div class="card">
+  <div class="qtitle">🔎 Petualangan Kata Sifat</div><div class="progress" id="adjProg">1/5</div>
+  <div class="instruction">Pilih kata sifat yang paling tepat untuk melengkapi kalimat!</div>
+  <div class="question" id="adjQ"></div><div class="answers" id="adjA"></div>
+  <div class="feedback" id="adjF"></div>
+  <div class="bottom"><button id="adjBack" class="nav" onclick="back('adj')">← Kembali</button><button id="adjNext" class="nav next disabled" onclick="next('adj')">Lanjut →</button></div>
+  <div class="tip">💡 Kata sifat menjelaskan sifat, keadaan, atau ciri seseorang atau benda.</div>
+ </div></div>
+</section>
+
+<!-- 3. SINONIM -->
+<section id="syn" class="screen library">
+ <div class="top"><button class="nav" onclick="home()">🏠 Home</button><div style="display:flex;align-items:center;gap:7px"><label class="pill" style="padding:6px 9px">🎚️ <input class="volumeSlider" type="range" min="0" max="100" value="55" aria-label="Volume musik"><span class="volText">55%</span></label><div class="pill">⭐ <span id="synScore">0</span>/5</div></div></div>
+ <div class="quizarea"><div class="card">
+  <div class="qtitle">📖 Petualangan Kata Sinonim</div><div class="progress" id="synProg">1/5</div>
+  <div class="instruction">Pilih kata yang bersinonim atau memiliki arti sama!</div>
+  <div class="question" id="synQ"></div><div class="answers" id="synA"></div>
+  <div class="feedback" id="synF"></div>
+  <div class="bottom"><button id="synBack" class="nav" onclick="back('syn')">← Kembali</button><button id="synNext" class="nav next disabled" onclick="next('syn')">Lanjut →</button></div>
+  <div class="tip">💡 Sinonim adalah kata yang memiliki arti sama atau hampir sama.</div>
+ </div></div>
+</section>
+
+<!-- 4. ANTONIM -->
+<section id="ant" class="screen yard">
+ <div class="top"><button class="nav" onclick="home()">🏠 Home</button><div style="display:flex;align-items:center;gap:7px"><label class="pill" style="padding:6px 9px">🎚️ <input class="volumeSlider" type="range" min="0" max="100" value="55" aria-label="Volume musik"><span class="volText">55%</span></label><div class="pill">⭐ <span id="antScore">0</span>/5</div></div></div>
+ <div class="quizarea"><div class="card">
+  <div class="qtitle">↔️ Petualangan Kata Antonim</div><div class="progress" id="antProg">1/5</div>
+  <div class="instruction">Pilih kata yang berlawanan makna!</div>
+  <div class="question" id="antQ"></div><div class="answers" id="antA"></div>
+  <div class="feedback" id="antF"></div>
+  <div class="bottom"><button id="antBack" class="nav" onclick="back('ant')">← Kembali</button><button id="antNext" class="nav next disabled" onclick="next('ant')">Lanjut →</button></div>
+  <div class="tip">💡 Antonim adalah kata yang memiliki makna berlawanan.</div>
+ </div></div>
+</section>
+
+<!-- Papan Skor Pemain -->
+
+<section id="leaderboard" class="screen finish">
+ <div class="top"><div class="pill">🏆 Skor Pemain</div><div style="display:flex;gap:8px;align-items:center"><button class="nav" onclick="home()">🏠 Home</button><div class="volumeBox">🎵 <input class="volume" type="range" min="0" max="100" value="45"><span class="volText">45%</span></div></div></div>
+ <div class="scorebox"><div class="result">
+  <div class="trophy">🏆 ⭐ 🦉</div>
+  <div class="finishTitle" style="font-size:clamp(30px,5vw,52px)">Papan Skor Detektif</div>
+  <p class="summary">🥇 Urutan skor tertinggi ditampilkan paling atas.</p>
+  <table><thead><tr><th>Posisi</th><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Waktu</th></tr></thead><tbody id="leaderBody"></tbody></table>
+  <div class="actions"><button class="nav" onclick="home()">🏠 Kembali ke Beranda</button></div>
+ </div></div>
+</section>
+
+<!-- 5. SKOR -->
+<section id="finish" class="screen finish">
+ <div class="top"><button class="nav" onclick="home()">🏠 Home</button><label class="pill" style="padding:6px 9px">🎚️ <input class="volumeSlider" type="range" min="0" max="100" value="55" aria-label="Volume musik"><span class="volText">55%</span></label></div>
+ <div class="scorebox"><div class="result">
+  <div class="trophy">🏆 🕵️‍♂️ 🦉</div>
+  <div class="finishTitle">Game Selesai!</div>
+  <div class="summary" id="summary"></div>
+  <table><thead><tr><th>No</th><th>Nama</th><th>Kelas</th><th>Nilai</th><th>Waktu</th></tr></thead><tbody id="results"></tbody></table>
+  <div class="actions"><button class="startbtn replay" onclick="restart()">🔄 Main Lagi</button><button class="nav" onclick="home()">🏠 Home</button></div>
+  <div class="feedbackContact">☎ Saran dan masukan hubungi : Aos Mutaqin, S.Pd.I (087773935992)</div>
+ </div></div>
+</section>
+</div>
+
+<script>
+const DATA={
+mudah:{
+adj:[
+["Rina memakai baju yang ___.",["cantik","makan","meja","lari"],0],["Budi anak yang ___ kepada gurunya.",["hormat","tidur","pensil","berlari"],0],["Air es terasa ___.",["dingin","menulis","buku","berjalan"],0],["Kucing itu memiliki bulu yang ___.",["lembut","membaca","kursi","melompat"],0],["Tas itu sangat ___ untuk dibawa.",["ringan","minum","pintu","berbicara"],0]],
+syn:[
+["Sinonim kata “senang” adalah ...",["sedih","gembira","marah","takut"],1],["Sinonim kata “pandai” adalah ...",["bodoh","malas","cerdas","lemah"],2],["Sinonim kata “indah” adalah ...",["elok","buruk","kotor","gelap"],0],["Sinonim kata “cepat” adalah ...",["lambat","lekas","diam","jauh"],1],["Sinonim kata “besar” adalah ...",["agung","kecil","sempit","tipis"],0]],
+ant:[
+["Antonim kata “tinggi” adalah ...",["pendek","besar","cepat","kuat"],0],["Antonim kata “panas” adalah ...",["hangat","dingin","terik","pedas"],1],["Antonim kata “rajin” adalah ...",["tekun","malas","giat","aktif"],1],["Antonim kata “terang” adalah ...",["cerah","putih","gelap","bersih"],2],["Antonim kata “jauh” adalah ...",["dekat","tinggi","luas","besar"],0]]
+},
+sedang:{
+adj:[
+["Kamar itu tampak ___ setelah dirapikan.",["rapi","memasak","berlari","buku"],0],["Suara penyanyi itu sangat ___.",["merdu","makan","kursi","berjalan"],0],["Jalan licin membuat pengendara harus ___.",["hati-hati","meja","tidur","pensil"],0],["Pohon itu memiliki batang yang ___.",["kokoh","membaca","sepatu","melompat"],0],["Makanan buatan Ibu terasa ___.",["lezat","menulis","piring","bermain"],0]],
+syn:[
+["Sinonim “cermat” adalah ...",["teliti","ceroboh","lambat","ramai"],0],["Sinonim “gembira” adalah ...",["murung","riang","takut","lelah"],1],["Sinonim “sunyi” adalah ...",["ramai","hening","ribut","sibuk"],1],["Sinonim “pandangan” adalah ...",["penglihatan","pendengaran","gerakan","ucapan"],0],["Sinonim “berusaha” adalah ...",["mencoba","menyerah","berdiam","melupakan"],0]],
+ant:[
+["Antonim “hemat” adalah ...",["irit","boros","cermat","sederhana"],1],["Antonim “jujur” adalah ...",["tulus","bohong","baik","benar"],1],["Antonim “sempit” adalah ...",["kecil","luas","pendek","rendah"],1],["Antonim “aktif” adalah ...",["giat","pasif","rajin","cepat"],1],["Antonim “muncul” adalah ...",["datang","terlihat","hilang","tiba"],2]]
+},
+sulit:{
+adj:[
+["Sikapnya yang ___ membuat teman-temannya merasa nyaman.",["ramah","keras","kasar","ceroboh"],0],["Meskipun mendapat kritik, ia tetap ___ menerima masukan.",["terbuka","sempit","gelap","lemah"],0],["Penjelasan guru sangat ___ sehingga mudah dipahami.",["jelas","kabur","rumit","acak"],0],["Daerah itu terkenal karena udaranya yang ___.",["sejuk","panas","bising","keruh"],0],["Keputusan yang diambil harus ___ dan tidak tergesa-gesa.",["bijaksana","ceroboh","sembrono","gegabah"],0]],
+syn:[
+["Sinonim “abadi” adalah ...",["kekal","sementara","singkat","rapuh"],0],["Sinonim “konkret” adalah ...",["nyata","khayal","samar","maya"],0],["Sinonim “cendekia” adalah ...",["terpelajar","ceroboh","malas","lemah"],0],["Sinonim “usang” adalah ...",["kuno","baru","segar","modern"],0],["Sinonim “kendala” adalah ...",["hambatan","bantuan","kemajuan","hadiah"],0]],
+ant:[
+["Antonim “optimistis” adalah ...",["yakin","pesimistis","semangat","percaya"],1],["Antonim “fleksibel” adalah ...",["lentur","kaku","luwes","mudah"],1],["Antonim “mayoritas” adalah ...",["sebagian besar","minoritas","umum","banyak"],1],["Antonim “transparan” adalah ...",["terbuka","jelas","tertutup","terang"],2],["Antonim “tradisional” adalah ...",["kuno","modern","lama","adat"],1]]
+}
+};
+
+let mode="mudah", name="", kelas="", cur={adj:0,syn:0,ant:0}, score={adj:0,syn:0,ant:0};
+let answered={adj:false,syn:false,ant:false}, started=0, elapsed=0, musicOn=true, audioCtx=null, musicTimer=null, masterVolume=.45;
+
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0)}
+function home(){stopMusic();if("speechSynthesis"in window)speechSynthesis.cancel();show("start")}
+document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{
+ document.querySelectorAll(".mode").forEach(x=>x.classList.remove("selected"));
+ b.classList.add("selected");mode=b.dataset.mode;tap();
+ const label=mode==="mudah"?"Mode mudah dipilih":mode==="sedang"?"Mode sedang dipilih":"Mode sulit dipilih";
+ voice(label);
+});
+function ensureAudio(){
+ try{const C=window.AudioContext||window.webkitAudioContext;if(!C)return false;audioCtx=audioCtx||new C();if(audioCtx.state==="suspended")audioCtx.resume();return true}catch(e){return false}
+}
+function applyVolume(v){
+ masterVolume=Math.max(0,Math.min(1,Number(v)/100));
+ document.querySelectorAll(".volume").forEach(x=>x.value=Math.round(masterVolume*100));
+ document.querySelectorAll(".volText").forEach(x=>x.textContent=Math.round(masterVolume*100)+"%");
+}
+document.querySelectorAll(".volume").forEach(x=>x.addEventListener("input",e=>applyVolume(e.target.value)));
+function tone(freq,d=.08,g=.035,type="sine"){
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  audioCtx=audioCtx||new C();if(audioCtx.state==="suspended")audioCtx.resume();
+  let o=audioCtx.createOscillator(),v=audioCtx.createGain();
+  o.type=type;o.frequency.value=freq;v.gain.value=g*masterVolume;o.connect(v);v.connect(audioCtx.destination);
+  o.start();v.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+d);o.stop(audioCtx.currentTime+d);
+ }catch(e){}
+}
+function tap(){tone(420,.05,.035)}
+function voice(text){
+ if(!musicOn || !("speechSynthesis" in window))return;
+ speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(text);u.lang="en-US";u.rate=.92;u.pitch=1.08;u.volume=masterVolume;speechSynthesis.speak(u);
+}
+function good(){tone(660,.1,.05);setTimeout(()=>tone(880,.14,.05),100);voice("Good job!")}
+function bad(){tone(180,.15,.045,"sawtooth");setTimeout(()=>tone(140,.16,.04,"sawtooth"),110);voice("Yaaah... coba lagi!")}
+function startMusic(){
+ if(!musicOn)return;
+ try{
+  const C=window.AudioContext||window.webkitAudioContext;if(!C)return;
+  audioCtx=audioCtx||new C();if(audioCtx.state==="suspended")audioCtx.resume();
+  stopMusic();
+  const notes=[261.63,329.63,392,329.63,293.66,349.23,440,349.23,392,493.88,440,329.63];
+  let i=0;
+  musicTimer=setInterval(()=>tone(notes[i++%notes.length],.20,.018,"triangle"),250);
+ }catch(e){}
+}
+function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null}}
+applyVolume(45);
+
+document.getElementById("begin").onclick=()=>{
+ name=document.getElementById("name").value.trim()||"Pemain";
+ kelas=document.getElementById("kelas").value.trim()||"-";
+ cur={adj:0,syn:0,ant:0};score={adj:0,syn:0,ant:0};answered={adj:false,syn:false,ant:false};
+ started=Date.now();startMusic();render("adj");show("adj");categoryIntro("adj"); 
+};
+
+function render(type){
+ const item=DATA[mode][type][cur[type]];
+ document.getElementById(type+"Prog").textContent=(cur[type]+1)+"/5";
+ document.getElementById(type+"Score").textContent=score[type];
+ document.getElementById(type+"Q").textContent=item[0];
+ const box=document.getElementById(type+"A");box.innerHTML="";
+ item[1].forEach((txt,i)=>{
+  let b=document.createElement("button");b.className="answer "+["a","b","c","d"][i];b.innerHTML="<b>"+String.fromCharCode(65+i)+".</b> "+txt;
+  b.onclick=()=>answer(type,i,b);box.appendChild(b);
+ });
+ document.getElementById(type+"F").textContent="";
+ document.getElementById(type+"Next").classList.add("disabled");
+ document.getElementById(type+"Back").classList.toggle("disabled",cur[type]===0 && type==="adj");
+ answered[type]=false;
+}
+function answer(type,idx,btn){
+ if(answered[type])return;answered[type]=true;
+ const item=DATA[mode][type][cur[type]];
+ document.querySelectorAll("#"+type+"A .answer").forEach(x=>x.disabled=true);
+ if(idx===item[2]){
+  score[type]++;btn.classList.add("correct");document.getElementById(type+"F").textContent="🎉 BENAR! Petunjuk berhasil ditemukan!";
+  good();
+ }else{
+  btn.classList.add("wrong");document.querySelectorAll("#"+type+"A .answer")[item[2]].classList.add("correct");
+  document.getElementById(type+"F").textContent="😅 Yaaah... belum tepat. Jawaban yang benar disorot.";
+  bad();
+ }
+ document.getElementById(type+"Score").textContent=score[type];document.getElementById(type+"Next").classList.remove("disabled");
+}
+function categoryIntro(type){
+ const labels={adj:"Petualangan kata sifat",syn:"Petualangan kata sinonim",ant:"Petualangan kata antonim"};
+ const notes={adj:[523.25,659.25],syn:[587.33,739.99],ant:[659.25,783.99]};
+ const n=notes[type]||notes.adj;
+ tone(n[0],.12,.06);setTimeout(()=>tone(n[1],.18,.06),110);setTimeout(()=>voice(labels[type]),150);
+}
+function next(type){
+ if(!answered[type])return;tap();
+ if(cur[type]<4){cur[type]++;render(type);return}
+ if(type==="adj"){render("syn");show("syn");categoryIntro("syn");}
+ else if(type==="syn"){render("ant");show("ant");categoryIntro("ant");}
+ else finishGame();
+}
+function back(type){
+ tap();
+ if(cur[type]>0){cur[type]--;render(type);return}
+ if(type==="syn"){render("adj");show("adj");categoryIntro("adj")}
+ else if(type==="ant"){render("syn");show("syn");categoryIntro("syn")}
+ else home();
+}
+document.getElementById("scoreMenu").onclick=()=>{renderLeaderboard();show("leaderboard");startMusic();tap();voice("Papan skor pemain")};
+function parseTime(t){const p=String(t||"99:99").split(":");return (Number(p[0])||0)*60+(Number(p[1])||0)}
+function escapeHtml(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function renderLeaderboard(){
+ const rows=JSON.parse(localStorage.getItem("detektifResults")||"[]").slice().sort((a,b)=>(Number(b.val)||0)-(Number(a.val)||0)||(parseTime(a.time)-parseTime(b.time)));
+ const body=document.getElementById("leaderBody");
+ if(!rows.length){body.innerHTML='<tr><td colspan="5">Belum ada skor. Ayo selesaikan misi pertama!</td></tr>';return}
+ body.innerHTML=rows.slice(0,10).map((r,i)=>'<tr><td>'+(i+1)+'</td><td>'+escapeHtml(r.name)+'</td><td>'+escapeHtml(r.kelas)+'</td><td><b>'+r.val+'</b></td><td>'+r.time+'</td></tr>').join("");
+}
+function finishGame(){
+ elapsed=Math.max(1,Math.round((Date.now()-started)/1000));let total=score.adj+score.syn+score.ant,val=Math.round(total/15*100);
+ document.getElementById("summary").innerHTML="🌟 <b>"+name+"</b> menyelesaikan misi <b>"+mode.toUpperCase()+"</b> dengan <b>"+total+"/15</b> jawaban benar. Nilai: <b>"+val+"</b> • Waktu: <b>"+fmt(elapsed)+"</b>";
+ const saved=JSON.parse(localStorage.getItem("detektifResults")||"[]");
+ saved.push({name,kelas,val,time:fmt(elapsed)});saved.sort((a,b)=>(Number(b.val)||0)-(Number(a.val)||0)||(parseTime(a.time)-parseTime(b.time)));localStorage.setItem("detektifResults",JSON.stringify(saved.slice(0,20)));
+ renderResults();show("finish");voice("Congratulations! Game selesai!");setTimeout(good,300);
+}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function renderResults(){
+ let total=score.adj+score.syn+score.ant,val=Math.round(total/15*100);
+ let rows=[{name,kelas,val,time:fmt(elapsed)},...JSON.parse(localStorage.getItem("detektifResults")||"[]")];
+ rows.sort((a,b)=>(Number(b.val)||0)-(Number(a.val)||0)||(parseTime(a.time)-parseTime(b.time)));
+ document.getElementById("results").innerHTML=rows.slice(0,5).map((r,i)=>"<tr><td>"+(i+1)+"</td><td>"+r.name+"</td><td>"+r.kelas+"</td><td><b>"+r.val+"</b></td><td>"+r.time+"</td></tr>").join("");
+}
+function restart(){document.getElementById("name").value=name;document.getElementById("kelas").value=kelas;started=Date.now();cur={adj:0,syn:0,ant:0};score={adj:0,syn:0,ant:0};answered={adj:false,syn:false,ant:false};startMusic();render("adj");show("adj");categoryIntro("adj")}
+</script>
+</body>
+</html>
